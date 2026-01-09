@@ -18,12 +18,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Public read-only routes
     Route::get('/posts', [PostsController::class, 'index']);       // List all posts
     Route::get('/posts/{post}', [PostsController::class, 'show']); // Show single post
-
     // Protected post routes
     Route::post('/posts', [PostsController::class, 'store']);
     Route::put('/posts/{post}', [PostsController::class, 'update']);
     Route::delete('/posts/{post}', [PostsController::class, 'destroy']);
-
     Route::get('/posts/{post}/comments', [CommentController::class, 'index']);
     // Protected post routes
     Route::post('/posts/{post}/comments', [CommentController::class, 'store']);
