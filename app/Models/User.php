@@ -4,21 +4,23 @@ namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use App\Models\Post;
-use App\Models\Comment;
 
+/**
+ * @extends Authenticatable<User>
+ */
 class User extends Authenticatable
 {
+    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
-    
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'name',
@@ -29,7 +31,7 @@ class User extends Authenticatable
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $hidden = [
         'password',
@@ -45,13 +47,22 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    
-    public function posts()
+    /**
+     * Get the posts that belong to the user.
+     *
+     * @return HasMany<Post, $this>
+     */
+    public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
     }
-    
-    public function comments()
+
+    /**
+     * Get the comments that belong to the user.
+     *
+     * @return HasMany<Comment, $this>
+     */
+    public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
     }

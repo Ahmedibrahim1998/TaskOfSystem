@@ -6,25 +6,38 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreCommentRequest extends FormRequest
 {
-    public function authorize()
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
     {
-        return true;
+        return true; // لو عايز تحد من التعليقات للمستخدمين المسجلين فقط، غيّرها لـ auth()->check()
     }
 
-    public function rules()
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, string|array<int, string>>
+     */
+    public function rules(): array
     {
         return [
             'body' => ['required', 'string', 'min:3', 'max:1000'],
         ];
     }
 
-    public function messages()
+    /**
+     * Get custom messages for validation errors.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
     {
         return [
             'body.required' => 'حقل التعليق مطلوب',
-            'body.string' => 'يجب أن يكون التعليق نصياً',
-            'body.min' => 'يجب أن يكون التعليق على الأقل 3 أحرف',
-            'body.max' => 'يجب ألا يزيد التعليق عن 1000 حرف',
+            'body.string'   => 'يجب أن يكون التعليق نصياً',
+            'body.min'      => 'يجب أن يكون التعليق على الأقل 3 أحرف',
+            'body.max'      => 'يجب ألا يزيد التعليق عن 1000 حرف',
         ];
     }
 }

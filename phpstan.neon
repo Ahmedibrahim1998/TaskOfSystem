@@ -1,0 +1,22 @@
+parameters:
+    level: 7
+    # هنا مسار الملفات اللي هيبحث عن الأخطاء فيها
+    paths:
+        - app/
+    # هنا بيستثني المجلدات اللي مش هيحللها
+    excludePaths:
+        - storage/
+        - vendor/
+        # هنا معنديش مجلد node_modules لذلك حطيت (?) عشان يبقى اختياري وميسببش مشكلة
+        - node_modules(?)
+    # هنا بيحدد امتدادات الملفات اللي هيتم فحصها (الافتراضي php بس)
+    fileExtensions:
+        - php
+    # Learning-friendly settings
+    reportUnmatchedIgnoredErrors: false
+    # Common errors to ignore initially (هنشيلها واحدة واحدة لما نصلح الكود)
+    ignoreErrors:
+        - '#Access to an undefined property#'
+        - '#Call to an undefined method#'
+        - '#Parameter .* has invalid typehint#'
+        - '#Method .* has no return typehint#'

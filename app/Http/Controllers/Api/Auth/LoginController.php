@@ -8,10 +8,11 @@ use Illuminate\Support\Facades\Auth;  // Fixed: Added the correct import
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class LoginController extends Controller
 {
-    public function login(LoginUserRequest $request)
+    public function login(LoginUserRequest $request): \Illuminate\Http\JsonResponse
     {
         if (!Auth::attempt($request->only('email', 'password'))) {
             throw ValidationException::withMessages([
@@ -28,7 +29,7 @@ class LoginController extends Controller
         ]);
     }
 
-     public function logout(Request $request)
+     public function logout(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
         return response()->json([

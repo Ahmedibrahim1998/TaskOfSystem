@@ -3,16 +3,11 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Password;
+use Illuminate\Validation\Rule;
 
 class CreateUserRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -20,9 +15,9 @@ class CreateUserRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array
+     * @return array<string, string|array<int, string>>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'name' => ['required', 'string', 'max:255'],
@@ -30,7 +25,13 @@ class CreateUserRequest extends FormRequest
             'password' => ['required', 'confirmed', 'min:8'],
         ];
     }
-    public function messages()
+
+    /**
+     * Get custom messages for validation errors.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
     {
         return [
             'name.required' => 'حقل الاسم مطلوب',

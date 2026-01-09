@@ -12,14 +12,13 @@ use Illuminate\Support\Facades\Auth;
 
 class PostsController extends Controller
 {
-
-    public function index()
+    public function index(): \App\Http\Resources\PostCollection
     {
         $posts = Post::with(['user', 'comments.user'])->latest()->paginate(10);
         return PostResource::collection($posts);
     }
 
-    public function store(StorePostRequest $request)
+    public function store(StorePostRequest $request): \Illuminate\Http\JsonResponse
     {
         $post = Auth::user()->posts()->create($request->validated());
 
@@ -29,19 +28,13 @@ class PostsController extends Controller
         ], 201);
     }
 
-    public function show(Post $post)
+    public function show(Post $post): \App\Http\Resources\PostResource
     {
         return new PostResource($post->load(['user', 'comments.user']));
     }
 
-   public function update(UpdatePostRequest $request, Post $post)
+   public function update(UpdatePostRequest $request, Post $post): \Illuminate\Http\JsonResponse
     {
-        // Remove the policy check and add direct authorization
-        if (auth()->id() !== $post->user_id) {
-            return response()->json([
-                'message' => 'غير مصرح لك بتحديث هذا المنشور'
-            ], 403);
-        }
         
         $post->update($request->validated());
 
@@ -51,7 +44,7 @@ class PostsController extends Controller
         ]);     
     }
     
-    public function destroy(Post $post)
+    public function destroy(Post $post): \Illuminate\Http\JsonResponse
     {
         $post->delete();
         return response()->json([

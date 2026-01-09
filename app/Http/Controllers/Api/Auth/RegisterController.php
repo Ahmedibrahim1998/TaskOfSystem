@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Hash;
 
 class RegisterController extends Controller
 {
-    public function register(CreateUserRequest $request)
+    public function register(CreateUserRequest $request): \Illuminate\Http\JsonResponse
     {
         $validated = $request->validated();
 
