@@ -29,9 +29,5 @@ jobs:
           php artisan key:generate
       - name: صلاحيات المجلدات
         run: chmod -R 777 storage bootstrap/cache
-      - name: إنشاء قاعدة البيانات
-        run: |
-          touch database/database.sqlite
-          php artisan migrate
       - name: تشغيل الاختبارات
         run: php artisan test
