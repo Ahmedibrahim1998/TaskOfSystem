@@ -27,7 +27,6 @@ jobs:
           composer install -q --no-ansi --no-interaction --no-scripts --no-suggest --prefer-dist
           cp .env.example .env
           php artisan key:generate
-      - name: صلاحيات المجلدات
-        run: chmod -R 777 storage bootstrap/cache
+          
       - name: تشغيل الاختبارات
         run: php artisan test
