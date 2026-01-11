@@ -31,7 +31,7 @@ jobs:
         run: chmod -R 777 storage bootstrap/cache
       - name: إنشاء قاعدة البيانات
         run: |
-          touch database/database.mysql
+          touch database/database.sqlite
           php artisan migrate
       - name: تشغيل الاختبارات
         run: php artisan test
