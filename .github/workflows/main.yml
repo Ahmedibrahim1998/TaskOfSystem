@@ -1,0 +1,20 @@
+name: first workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+   example-job: 
+      runs-on: ubuntu-latest
+
+      steps:
+       - name: print hello in first workflow
+         run: echo "Hello in first work flow by ahmed Ibrahim"
+
+       - name: Checkout
+         uses: actions/checkout@v6.0.2
+
+       - name: list of repository fils
+         run: ls -la
