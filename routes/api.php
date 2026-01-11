@@ -10,8 +10,6 @@ use App\Http\Controllers\CommentController;
 // Public routes
 Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/login', [LoginController::class, 'login']);
-
-
 // Protected routes (require authentication)
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout']);
@@ -25,5 +23,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/posts/{post}/comments', [CommentController::class, 'index']);
     // Protected post routes
     Route::post('/posts/{post}/comments', [CommentController::class, 'store']);
-
 });
