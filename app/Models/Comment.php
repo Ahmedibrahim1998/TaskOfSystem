@@ -6,9 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/**
- * @extends Model<Comment>
- */
 class Comment extends Model
 {
     /** @use HasFactory<\Database\Factories\CommentFactory> */
@@ -21,8 +18,6 @@ class Comment extends Model
     ];
 
     /**
-     * Get the user that owns the comment.
-     *
      * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
@@ -31,8 +26,6 @@ class Comment extends Model
     }
 
     /**
-     * Get the post that the comment belongs to.
-     *
      * @return BelongsTo<Post, $this>
      */
     public function post(): BelongsTo
