@@ -9,9 +9,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-/**
- * @extends Authenticatable<User>
- */
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -48,8 +45,6 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the posts that belong to the user.
-     *
      * @return HasMany<Post, $this>
      */
     public function posts(): HasMany
@@ -58,8 +53,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the comments that belong to the user.
-     *
      * @return HasMany<Comment, $this>
      */
     public function comments(): HasMany

@@ -1,20 +1,20 @@
 parameters:
-    level: 7
-    # هنا مسار الملفات اللي هيبحث عن الأخطاء فيها
+    level: 6
+   # Path to files to analyze for errors
     paths:
         - app/
-    # هنا بيستثني المجلدات اللي مش هيحللها
+    # Exclude folders that it won't parse
     excludePaths:
         - storage/
         - vendor/
-        # هنا معنديش مجلد node_modules لذلك حطيت (?) عشان يبقى اختياري وميسببش مشكلة
+        # Here there is no node_modules folder, so I added (?) so it can be optional and not cause problems
         - node_modules(?)
-    # هنا بيحدد امتدادات الملفات اللي هيتم فحصها (الافتراضي php بس)
+    # Here it specifies the file extensions to be checked (the default is php only)
     fileExtensions:
         - php
     # Learning-friendly settings
     reportUnmatchedIgnoredErrors: false
-    # Common errors to ignore initially (هنشيلها واحدة واحدة لما نصلح الكود)
+    # Common errors to ignore initially (we'll remove them one by one as we fix the code)
     ignoreErrors:
         - '#Access to an undefined property#'
         - '#Call to an undefined method#'

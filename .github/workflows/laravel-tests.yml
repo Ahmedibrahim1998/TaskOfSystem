@@ -1,32 +1,38 @@
-name: test application
+name: Test Application
+
 on:
   push:
-    branches: [ main ]
+    branches:
+      - master
   pull_request:
-    branches: [ main ]
+    branches:
+      - master
 
 jobs:
-  test:
+  tests:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: mbstring, xml, ctype, json, tokenizer, pdo, sqlite, pdo_sqlite, dom, fileinfo, openssl, tokenizer, filter, hash, pcntl, posix, pdo_mysql, pdo_pgsql, pdo_sqlite, pdo_sqlsrv, pdo_dblib, pdo_oci, pdo_odbc, pdo_firebird, pdo_ibm, pdo_4d, pdo_4d, pdo_4d, pdo_4d
+          extensions: mbstring, xml, ctype, json, tokenizer, pdo, sqlite, pdo_sqlite
           coverage: none
-      - name: Install Dependencies
+
+      - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
-      - name: Run Tests
-        run: vendor/bin/phpstan analyse app/Http/Controllers
 
-
-      - name: تثبيت المكتبات
+      - name: Prepare Laravel
         run: |
-          composer install -q --no-ansi --no-interaction --no-scripts --no-suggest --prefer-dist
           cp .env.example .env
           php artisan key:generate
-          
-      - name: تشغيل الاختبارات
+
+      - name: Run PHPStan
+        run: vendor/bin/phpstan analyse
+
+      - name: Run Tests
         run: php artisan test
