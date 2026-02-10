@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
+use Spatie\FlareClient\View;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -16,3 +19,14 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Route::post('/home',function () {
+//    return View('welcome'); 
+// });
+
+
+// Route::delete('/delete',function(){
+//     return view('welcome');
+// });
+
+Route::get('category/index',[CategoryController::class,'index']);
