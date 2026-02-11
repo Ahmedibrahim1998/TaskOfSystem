@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 class CategoryController extends Controller
 {
-  public function index()
+  public function index(): JsonResponse
     {
        $catgeories = [
             [
