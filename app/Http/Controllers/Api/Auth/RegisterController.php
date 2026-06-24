@@ -2,29 +2,25 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
+use App\Actions\Auth\RegisterUserAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateUserRequest;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
+use App\Http\Resources\UserResource;
+use Illuminate\Http\JsonResponse;
 
+/**
+ * Controller نحيف لتسجيل المستخدمين: بينادي RegisterUserAction.
+ */
 class RegisterController extends Controller
 {
-    public function register(CreateUserRequest $request): \Illuminate\Http\JsonResponse
+    public function register(CreateUserRequest $request, RegisterUserAction $action): JsonResponse
     {
-        $validated = $request->validated();
-
-        $user =User::create([
-            'name'=> $validated['name'],
-            'email'=> $validated['email'],
-            'password'=> Hash::make($validated['password'])
-        ]);
-
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $result = $action->execute($request->validated());
 
         return response()->json([
-            'user' => $user,
-            'access_token' => $token,
-            'token_type' => 'Bearer',
+            'user'         => new UserResource($result['user']),
+            'access_token' => $result['token'],
+            'token_type'   => 'Bearer',
         ], 201);
     }
 }
