@@ -2,38 +2,42 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
+use App\Application\Auth\DTOs\LoginDTO;
+use App\Application\Auth\UseCases\LoginUserUseCase;
+use App\Application\Auth\UseCases\LogoutUserUseCase;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginUserRequest;
-use Illuminate\Support\Facades\Auth;  // Fixed: Added the correct import
-use Illuminate\Validation\ValidationException;
-use App\Models\User;
-use Illuminate\Http\Request;
+use App\Http\Resources\UserResource;
 use Illuminate\Http\JsonResponse;
 
+/**
+ * Controller نحيف لتسجيل الدخول والخروج (طبقة Presentation).
+ */
 class LoginController extends Controller
 {
-    public function login(LoginUserRequest $request): \Illuminate\Http\JsonResponse
+    public function login(LoginUserRequest $request, LoginUserUseCase $loginUser): JsonResponse
     {
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
-            ]);
-        }
-        $user = User::where('email', $request->email)->firstOrFail();
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $validated = $request->validated();
+
+        $result = $loginUser->execute(new LoginDTO(
+            email: $validated['email'],
+            password: $validated['password'],
+        ));
+
         return response()->json([
-            'message' => 'تم تسجيل الدخول بنجاح',
-            'user' => $user,
-            'access_token' => $token,
-            'token_type' => 'Bearer',
+            'message'      => 'تم تسجيل الدخول بنجاح',
+            'user'         => new UserResource($result->user),
+            'access_token' => $result->accessToken,
+            'token_type'   => $result->tokenType,
         ]);
     }
 
-     public function logout(Request $request): \Illuminate\Http\JsonResponse
+    public function logout(LogoutUserUseCase $logoutUser): JsonResponse
     {
-        $request->user()->currentAccessToken()->delete();
+        $logoutUser->execute();
+
         return response()->json([
-            'message' => 'تم تسجيل الخروج بنجاح'
+            'message' => 'تم تسجيل الخروج بنجاح',
         ]);
     }
 }
