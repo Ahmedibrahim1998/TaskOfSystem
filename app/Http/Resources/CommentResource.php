@@ -5,7 +5,9 @@ namespace App\Http\Resources;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin \App\Models\Comment
+ * بيحوّل كيان الـ Domain (CommentEntity) لمصفوفة استجابة JSON.
+ *
+ * @mixin \App\Domain\Comment\Entities\CommentEntity
  */
 class CommentResource extends JsonResource
 {
@@ -20,10 +22,8 @@ class CommentResource extends JsonResource
         return [
             'id'         => $this->id,
             'body'       => $this->body,
-            'user'       => new UserResource($this->whenLoaded('user')),
-            'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
-            // أو تنسيق أفضل وأكثر احترافية:
-            // 'created_at' => $this->created_at?->toDateTimeString(),
+            'user'       => $this->user !== null ? new UserResource($this->user) : null,
+            'created_at' => $this->createdAt?->format('Y-m-d H:i:s'),
         ];
     }
 }

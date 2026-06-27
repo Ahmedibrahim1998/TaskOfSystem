@@ -5,7 +5,9 @@ namespace App\Http\Resources;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin \App\Models\Post
+ * بيحوّل كيان الـ Domain (PostEntity) لمصفوفة استجابة JSON.
+ *
+ * @mixin \App\Domain\Post\Entities\PostEntity
  */
 class PostResource extends JsonResource
 {
@@ -22,21 +24,10 @@ class PostResource extends JsonResource
             'title'      => $this->title,
             'slug'       => $this->slug,
             'content'    => $this->content,
-            'user'       => new UserResource($this->whenLoaded('user')),
-            'comments'   => CommentResource::collection($this->whenLoaded('comments')),
-            'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
-            'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
+            'user'       => $this->user !== null ? new UserResource($this->user) : null,
+            'comments'   => CommentResource::collection($this->comments),
+            'created_at' => $this->createdAt?->format('Y-m-d H:i:s'),
+            'updated_at' => $this->updatedAt?->format('Y-m-d H:i:s'),
         ];
-    }
-
-    /**
-     * Customize the collection resource class.
-     *
-     * @param  mixed  $resource
-     * @return PostCollection
-     */
-    public static function collection($resource): PostCollection
-    {
-        return new PostCollection($resource);
     }
 }

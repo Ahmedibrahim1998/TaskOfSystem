@@ -2,29 +2,32 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
+use App\Application\Auth\DTOs\RegisterDTO;
+use App\Application\Auth\UseCases\RegisterUserUseCase;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateUserRequest;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
+use App\Http\Resources\UserResource;
+use Illuminate\Http\JsonResponse;
 
+/**
+ * Controller نحيف لتسجيل المستخدمين (طبقة Presentation).
+ */
 class RegisterController extends Controller
 {
-    public function register(CreateUserRequest $request): \Illuminate\Http\JsonResponse
+    public function register(CreateUserRequest $request, RegisterUserUseCase $registerUser): JsonResponse
     {
         $validated = $request->validated();
 
-        $user =User::create([
-            'name'=> $validated['name'],
-            'email'=> $validated['email'],
-            'password'=> Hash::make($validated['password'])
-        ]);
-
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $result = $registerUser->execute(new RegisterDTO(
+            name: $validated['name'],
+            email: $validated['email'],
+            password: $validated['password'],
+        ));
 
         return response()->json([
-            'user' => $user,
-            'access_token' => $token,
-            'token_type' => 'Bearer',
+            'user'         => new UserResource($result->user),
+            'access_token' => $result->accessToken,
+            'token_type'   => $result->tokenType,
         ], 201);
     }
 }

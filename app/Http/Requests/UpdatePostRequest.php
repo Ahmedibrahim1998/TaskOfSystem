@@ -5,7 +5,6 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
-use App\Models\Post;
 
 class UpdatePostRequest extends FormRequest
 {
@@ -24,8 +23,9 @@ class UpdatePostRequest extends FormRequest
      */
     public function rules(): array
     {
-        /** @var Post $post */
-        $post = $this->route('post');
+        // بعد تطبيق Clean Architecture بقينا منتعملش Route Model Binding،
+        // فالـ route('post') بيرجّع معرّف المنشور (id) مباشرة.
+        $postId = $this->route('post');
 
         return [
             'title' => [
@@ -37,7 +37,7 @@ class UpdatePostRequest extends FormRequest
                 // العنوان فريد للمستخدم نفسه فقط، مع استثناء المنشور الحالي
                 Rule::unique('posts')
                     ->where('user_id', auth()->id())
-                    ->ignore($post->id),
+                    ->ignore($postId),
             ],
             'content' => [
                 'sometimes',
@@ -52,7 +52,7 @@ class UpdatePostRequest extends FormRequest
                 'alpha_dash',
                 'max:255',
                 // الـ slug فريد عام (مش لكل مستخدم)، مع استثناء المنشور الحالي
-                Rule::unique('posts')->ignore($post->id),
+                Rule::unique('posts')->ignore($postId),
             ],
         ];
     }

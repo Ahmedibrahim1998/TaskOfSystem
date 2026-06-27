@@ -2,36 +2,38 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Resources\Json\ResourceCollection;
+use App\Domain\Comment\Entities\CommentEntity;
+use App\Domain\Shared\PaginatedResult;
+use Illuminate\Http\Resources\Json\JsonResource;
 
-class CommentCollection extends ResourceCollection
+/**
+ * بيحوّل نتيجة تعليقات مقسّمة لصفحات (PaginatedResult) لاستجابة JSON.
+ *
+ * @mixin \App\Domain\Shared\PaginatedResult<\App\Domain\Comment\Entities\CommentEntity>
+ */
+class CommentCollection extends JsonResource
 {
     /**
-     * Transform the resource collection into an array.
+     * Transform the resource into an array.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return array<string, mixed>
      */
     public function toArray($request): array
     {
+        /** @var PaginatedResult<CommentEntity> $result */
+        $result = $this->resource;
+
         return [
-            'data' => $this->collection, // Laravel هيحول كل Comment إلى CommentResource تلقائيًا
-
-            'links' => [
-                'first' => $this->url(1),
-                'last'  => $this->url($this->lastPage()),
-                'prev'  => $this->previousPageUrl(),  // string|null
-                'next'  => $this->nextPageUrl(),      // string|null
-            ],
-
+            'data' => array_map(
+                static fn (CommentEntity $comment): CommentResource => new CommentResource($comment),
+                $result->items,
+            ),
             'meta' => [
-                'current_page' => $this->currentPage(),
-                'from'         => $this->firstItem(),
-                'last_page'    => $this->lastPage(),
-                'path'         => $this->path(),
-                'per_page'     => $this->perPage(),
-                'to'           => $this->lastItem(),
-                'total'        => $this->total(),
+                'current_page' => $result->currentPage,
+                'last_page'    => $result->lastPage,
+                'per_page'     => $result->perPage,
+                'total'        => $result->total,
             ],
         ];
     }
