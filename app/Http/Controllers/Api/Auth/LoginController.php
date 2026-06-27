@@ -2,38 +2,43 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
+use App\Actions\Auth\LoginUserAction;
+use App\Actions\Auth\LogoutUserAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginUserRequest;
-use Illuminate\Support\Facades\Auth;  // Fixed: Added the correct import
-use Illuminate\Validation\ValidationException;
+use App\Http\Resources\UserResource;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
+/**
+ * Controller نحيف لتسجيل الدخول والخروج: بينادي Actions.
+ */
 class LoginController extends Controller
 {
-    public function login(LoginUserRequest $request): \Illuminate\Http\JsonResponse
+    public function login(LoginUserRequest $request, LoginUserAction $action): JsonResponse
     {
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
-            ]);
-        }
-        $user = User::where('email', $request->email)->firstOrFail();
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $validated = $request->validated();
+
+        $result = $action->execute($validated['email'], $validated['password']);
+
         return response()->json([
-            'message' => 'تم تسجيل الدخول بنجاح',
-            'user' => $user,
-            'access_token' => $token,
-            'token_type' => 'Bearer',
+            'message'      => 'تم تسجيل الدخول بنجاح',
+            'user'         => new UserResource($result['user']),
+            'access_token' => $result['token'],
+            'token_type'   => 'Bearer',
         ]);
     }
 
-     public function logout(Request $request): \Illuminate\Http\JsonResponse
+    public function logout(Request $request, LogoutUserAction $action): JsonResponse
     {
-        $request->user()->currentAccessToken()->delete();
+        /** @var User $user */
+        $user = $request->user();
+
+        $action->execute($user);
+
         return response()->json([
-            'message' => 'تم تسجيل الخروج بنجاح'
+            'message' => 'تم تسجيل الخروج بنجاح',
         ]);
     }
 }
