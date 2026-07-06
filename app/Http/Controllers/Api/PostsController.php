@@ -2,53 +2,57 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\DTOs\PostData;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;    
-use App\Models\Post;
-use App\Http\Resources\PostResource;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\PostCollection;
+use App\Http\Resources\PostResource;
+use App\Http\Responses\ApiResponse;
+use App\Models\Post;
+use App\Services\PostService;
+use App\Services\UserService;
 
+/**
+ * Controller نحيف للمنشورات: بينادي PostService ويغلّف الناتج في Resource.
+ * منطق العمل في الـ Service، والوصول للبيانات في الـ Repository.
+ */
 class PostsController extends Controller
 {
-    public function index(): \App\Http\Resources\PostCollection
-    {
-        $posts = Post::with(['user', 'comments.user'])->latest()->paginate(10);
-        return PostResource::collection($posts);
+    public function __construct(
+        private readonly PostService $posts,
+        private readonly UserService $users,
+    ) {
     }
 
-    public function store(StorePostRequest $request): \Illuminate\Http\JsonResponse
+    public function index(): PostCollection
     {
-        $post = Auth::user()->posts()->create($request->validated());
-
-        return response()->json([
-            'message' => 'تم إنشاء المنشور بنجاح',
-            'data' => new PostResource($post->load('user', 'comments'))
-        ], 201);
+        return PostResource::collection($this->posts->list(10));
     }
 
-    public function show(Post $post): \App\Http\Resources\PostResource
+    public function store(StorePostRequest $request): ApiResponse
     {
-        return new PostResource($post->load(['user', 'comments.user']));
+        $post = $this->posts->create($this->users->current(), PostData::fromArray($request->validated()));
+
+        return ApiResponse::success('تم إنشاء المنشور بنجاح', new PostResource($post), 201);
     }
 
-   public function update(UpdatePostRequest $request, Post $post): \Illuminate\Http\JsonResponse
+    public function show(Post $post): PostResource
     {
-        
-        $post->update($request->validated());
-
-        return response()->json([
-            'message' => 'تم تحديث المنشور بنجاح',
-            'data' => new PostResource($post->load('user', 'comments'))
-        ]);     
+        return new PostResource($this->posts->show($post));
     }
-    
-    public function destroy(Post $post): \Illuminate\Http\JsonResponse
+
+    public function update(UpdatePostRequest $request, Post $post): ApiResponse
     {
-        $post->delete();
-        return response()->json([
-            'message' => 'تم حذف المنشور بنجاح'
-        ], 200);
+        $post = $this->posts->update($post, $request->validated());
+
+        return ApiResponse::success('تم تحديث المنشور بنجاح', new PostResource($post));
+    }
+
+    public function destroy(Post $post): ApiResponse
+    {
+        $this->posts->delete($post);
+
+        return ApiResponse::success('تم حذف المنشور بنجاح');
     }
 }

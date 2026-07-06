@@ -2,35 +2,35 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Comment;
+use App\DTOs\CommentData;
 use App\Http\Requests\StoreCommentRequest;
-use App\Models\Post;
-use Illuminate\Http\JsonResponse;
+use App\Http\Resources\CommentCollection;
 use App\Http\Resources\CommentResource;
+use App\Http\Responses\ApiResponse;
+use App\Models\Post;
+use App\Services\CommentService;
+use App\Services\UserService;
 
+/**
+ * Controller نحيف للتعليقات: بينادي CommentService.
+ */
 class CommentController extends Controller
 {
-  public function index(int $postId): \App\Http\Resources\CommentCollection
-    {
-        $comments = Comment::with(['user', 'post'])
-            ->where('post_id', $postId)
-            ->latest()
-            ->paginate(10);
-            
-        return new \App\Http\Resources\CommentCollection($comments);
+    public function __construct(
+        private readonly CommentService $comments,
+        private readonly UserService $users,
+    ) {
     }
 
-    public function store(StoreCommentRequest $request, Post $post): JsonResponse
+    public function index(Post $post): CommentCollection
     {
-        $comment = Comment::create([
-            'user_id' => auth()->id(),
-            'post_id' => $post->id,     // ← هنا بنستخدم $post->id
-            'body'    => $request->body
-        ]);
+        return new CommentCollection($this->comments->listForPost($post->id, 10));
+    }
 
-        return response()->json([
-            'message' => 'تم إضافة التعليق بنجاح',
-            'data'    => new CommentResource($comment->load('user'))
-        ], 201);
+    public function store(StoreCommentRequest $request, Post $post): ApiResponse
+    {
+        $comment = $this->comments->create($this->users->current(), $post, CommentData::fromArray($request->validated()));
+
+        return ApiResponse::success('تم إضافة التعليق بنجاح', new CommentResource($comment), 201);
     }
 }

@@ -4,36 +4,42 @@ namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginUserRequest;
-use Illuminate\Support\Facades\Auth;  // Fixed: Added the correct import
-use Illuminate\Validation\ValidationException;
+use App\Http\Resources\UserResource;
+use App\Http\Responses\ApiResponse;
 use App\Models\User;
+use App\Services\AuthService;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 
+/**
+ * Controller نحيف لتسجيل الدخول والخروج: بينادي AuthService.
+ */
 class LoginController extends Controller
 {
-    public function login(LoginUserRequest $request): \Illuminate\Http\JsonResponse
+    public function __construct(
+        private readonly AuthService $auth,
+    ) {
+    }
+
+    public function login(LoginUserRequest $request): ApiResponse
     {
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
-            ]);
-        }
-        $user = User::where('email', $request->email)->firstOrFail();
-        $token = $user->createToken('auth_token')->plainTextToken;
-        return response()->json([
-            'message' => 'تم تسجيل الدخول بنجاح',
-            'user' => $user,
-            'access_token' => $token,
-            'token_type' => 'Bearer',
+        $validated = $request->validated();
+
+        $result = $this->auth->login($validated['email'], $validated['password']);
+
+        return new ApiResponse('تم تسجيل الدخول بنجاح', [
+            'user'         => new UserResource($result['user']),
+            'access_token' => $result['token'],
+            'token_type'   => 'Bearer',
         ]);
     }
 
-     public function logout(Request $request): \Illuminate\Http\JsonResponse
+    public function logout(Request $request): ApiResponse
     {
-        $request->user()->currentAccessToken()->delete();
-        return response()->json([
-            'message' => 'تم تسجيل الخروج بنجاح'
-        ]);
+        /** @var User $user */
+        $user = $request->user();
+
+        $this->auth->logout($user);
+
+        return ApiResponse::success('تم تسجيل الخروج بنجاح');
     }
 }
