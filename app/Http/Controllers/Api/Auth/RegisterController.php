@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Api\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Resources\UserResource;
+use App\Http\Responses\ApiResponse;
 use App\Services\AuthService;
-use Illuminate\Http\JsonResponse;
 
 /**
  * Controller نحيف لتسجيل المستخدمين: بينادي AuthService.
@@ -18,14 +18,14 @@ class RegisterController extends Controller
     ) {
     }
 
-    public function register(CreateUserRequest $request): JsonResponse
+    public function register(CreateUserRequest $request): ApiResponse
     {
         $result = $this->auth->register($request->validated());
 
-        return response()->json([
+        return new ApiResponse(payload: [
             'user'         => new UserResource($result['user']),
             'access_token' => $result['token'],
             'token_type'   => 'Bearer',
-        ], 201);
+        ], status: 201);
     }
 }

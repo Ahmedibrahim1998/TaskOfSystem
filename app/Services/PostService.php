@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\DTOs\PostData;
 use App\Models\Post;
+use App\Models\User;
 use App\Repositories\Contracts\PostRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
@@ -28,13 +30,11 @@ class PostService
     }
 
     /**
-     * ينشئ منشور لمستخدم ويرجّعه محمَّل بعلاقاته.
-     *
-     * @param  array<string, mixed>  $data
+     * ينشئ منشور كتبه المستخدم ويرجّعه محمَّل بعلاقاته.
      */
-    public function create(int $userId, array $data): Post
+    public function create(User $author, PostData $data): Post
     {
-        $post = $this->posts->createForUser($userId, $data);
+        $post = $this->posts->createForUser($author->id, $data->toArray());
 
         return $this->posts->loadRelations($post);
     }

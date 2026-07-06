@@ -2,7 +2,10 @@
 
 namespace App\Services;
 
+use App\DTOs\CommentData;
 use App\Models\Comment;
+use App\Models\Post;
+use App\Models\User;
 use App\Repositories\Contracts\CommentRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
@@ -25,14 +28,14 @@ class CommentService
     }
 
     /**
-     * يضيف تعليق على منشور ويرجّعه محمَّل بالكاتب.
+     * يضيف تعليق كتبه المستخدم على منشور ويرجّعه محمَّل بالكاتب.
      */
-    public function create(int $userId, int $postId, string $body): Comment
+    public function create(User $author, Post $post, CommentData $data): Comment
     {
         $comment = $this->comments->create([
-            'user_id' => $userId,
-            'post_id' => $postId,
-            'body'    => $body,
+            'user_id' => $author->id,
+            'post_id' => $post->id,
+            'body'    => $data->body,
         ]);
 
         return $comment->load('user');
